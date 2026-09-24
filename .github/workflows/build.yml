@@ -6,6 +6,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { submodules: recursive, fetch-depth: 1 }
+      - name: Unshallow KernelSU-Next
+        run: |
+          cd KernelSU-Next
+          git fetch --unshallow --tags || git fetch --tags --force
+          git describe --tags
+          cd ..
       - name: Swap
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
