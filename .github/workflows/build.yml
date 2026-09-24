@@ -1,0 +1,22 @@
+name: build-kernel
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive, fetch-depth: 1 }
+      - name: Dependências
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 lld-18 llvm-18 gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi bc bison flex libssl-dev libelf-dev cpio
+          echo "/usr/lib/llvm-18/bin" >> $GITHUB_PATH
+      - name: Build
+        run: |
+          echo "-beryl-f699d4bec4-m1dbdec88-d3c821dc3" > .scmversion
+          M="O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi-"
+          make $M marble_ds_defconfig
+          test "$(make $M -s kernelrelease)" = "5.10.257-beryl-f699d4bec4-m1dbdec88-d3c821dc3"
+          make $M -j$(nproc) Image
+      - uses: actions/upload-artifact@v4
+        with: { name: Image, path: out/arch/arm64/boot/Image }
