@@ -167,3 +167,4 @@ sphinx_*/
 # Build artifacts
 out/
 *-modules/
+susfs4ksu/
